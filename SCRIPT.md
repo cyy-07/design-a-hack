@@ -5,15 +5,13 @@ Bracketed lines are stage cues, not things to say.
 
 ---
 
-## Slide 1 — Title  *(~25s)*
+## Slide 1 — Title  *(~20s)*
 
 [Mini globe is spinning on the right.]
 
-Hi, we're TerraPulse.
+Hi, we're TerraPulse — a travel atlas built for this design-a-thon.
 
-It's a travel atlas — but specifically for the moment *before* you book. When you're sitting on a Sunday, daydreaming about where to go next, and you don't quite know yet.
-
-Most travel tools today help you once you've already chosen. We wanted to build something for the part before that. So we made a globe you can walk into.
+The idea is simple. Most travel sites today feel like spreadsheets with photos. We wanted to build something that feels more like a magazine. So we made a globe you walk into.
 
 ---
 
