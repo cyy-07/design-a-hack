@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Porto">
+  <defs>
+    <linearGradient id="sky" x1="12%" y1="0%" x2="88%" y2="100%">
+      <stop offset="0%" stop-color="#f6f5f7"/>
+      <stop offset="48%" stop-color="#e3e0e8"/>
+      <stop offset="100%" stop-color="#8b80b3" stop-opacity="0.72"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e3e0e8"/>
+      <stop offset="65%" stop-color="#8b80b3" stop-opacity="0.76"/>
+      <stop offset="100%" stop-color="#33303f" stop-opacity="0.22"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#8b80b3" stop-opacity="0.46"/>
+      <stop offset="100%" stop-color="#8b80b3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wash" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#33303f" stop-opacity="0.24"/>
+      <stop offset="46%" stop-color="#8b80b3" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="2" seed="815"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.08"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#sky)"/>
+  <circle cx="116" cy="38" r="56" fill="url(#glow)" filter="url(#soft)"/>
+  <path d="M0 93 C 36 67, 68 119, 100 44 S 164 119, 200 71 L 200 200 L 0 200 Z" fill="url(#ground)" opacity="0.82"/>
+  <path d="M0 144 C 44 124, 90 160, 134 136 S 176 120, 200 140 L 200 200 L 0 200 Z" fill="#33303f" opacity="0.1"/>
+  <rect width="100%" height="100%" fill="url(#wash)" opacity="0.72"/>
+  <rect width="100%" height="100%" filter="url(#grain)" opacity="1"/>
+  <rect x="8" y="10" width="184" height="180" rx="7" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1"/>
+</svg>

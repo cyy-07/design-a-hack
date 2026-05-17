@@ -1,0 +1,5 @@
+{
+  "_comment": "Manual overrides merge on top of fetched assets. Paths are relative to terrapulse/.",
+  "cities": {},
+  "landmarks": {}
+}

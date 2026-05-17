@@ -1,0 +1,20 @@
+{
+  "name": "terrapulse-image-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated city hero + landmark image acquisition for TerraPulse",
+  "type": "module",
+  "scripts": {
+    "fallbacks": "node run.js fallbacks",
+    "fetch": "node run.js fetch",
+    "manifest": "node run.js manifest",
+    "retry-missing": "node run.js retry-missing",
+    "all": "node run.js fallbacks && node run.js fetch && node run.js manifest"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.33.5"
+  }
+}

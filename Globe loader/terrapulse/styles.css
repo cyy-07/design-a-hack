@@ -1,0 +1,2812 @@
+/* ============================================================
+   TerraPulse — design system v2
+   Cinematic dark theme. Blue marble globe is the hero.
+   Warm cream typography. Single amber accent.
+   ============================================================ */
+
+:root {
+  /* surface — warm cinematic dark */
+  --bg-0: #0f0c0a;          /* page base, deepest */
+  --bg-1: #1a1612;          /* tab surface */
+  --bg-2: #2a221c;          /* raised */
+  --bg-3: #3a2f25;          /* divider/strong raised */
+  --ink-0: #faf1dd;         /* primary text — warm cream */
+  --ink-1: #d8caac;         /* secondary */
+  --ink-2: #a39681;         /* tertiary */
+  --ink-3: #6e6553;         /* muted */
+  --line: rgba(250, 241, 221, 0.08);
+  --line-strong: rgba(250, 241, 221, 0.18);
+
+  /* accent — single restrained warm amber */
+  --accent: oklch(0.78 0.16 70);
+  --accent-soft: oklch(0.42 0.08 65);
+  --accent-deep: oklch(0.55 0.13 60);
+
+  /* type — Fraunces is the editorial display (variable, with optical sizing
+     + softness axes for an unmistakable, magazine-grade feel). Inter is the
+     workhorse UI sans. Geist Mono stays for tabular / coordinate work. */
+  --f-display: 'Fraunces', 'Instrument Serif', 'Newsreader', Georgia, serif;
+  --f-sans: 'Inter', 'Geist', -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  --f-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* depth */
+  --shadow-tab: 0 4px 14px rgba(0, 0, 0, 0.32),
+                0 24px 64px -8px rgba(0, 0, 0, 0.55),
+                0 64px 160px -16px rgba(0, 0, 0, 0.65),
+                inset 0 1px 0 rgba(250, 241, 221, 0.05);
+  --shadow-pin: 0 0 24px rgba(244, 201, 138, 0.35),
+                0 0 60px rgba(244, 201, 138, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  font-family: var(--f-sans);
+  color: var(--ink-0);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 45%, rgba(72, 92, 130, 0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(140, 80, 60, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(60, 100, 140, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #131722 0%, #0c1019 50%, #060812 100%);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+/* paper-grain noise to keep dark surfaces from looking flat */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  opacity: 0.45;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.8  0 0 0 0 0.65  0 0 0 0 0.4  0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* outer vignette darkens corners */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+/* ===== Side ambient gradients =================================
+   The globe sits in the centre. Two vertical light-haze panels flank it,
+   creating a "the world is being projected onto a stage" feel without
+   competing with the planet. They live just above the page noise but
+   below the globe canvas, so the globe stays the hero. */
+.side-haze {
+  position: fixed; top: 0; bottom: 0;
+  width: 28vw;
+  pointer-events: none;
+  z-index: 0;
+  /* soft warm-cream wash with a sliver of cool at the inner edge */
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+.side-haze.left {
+  left: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(248, 222, 184, 0.16) 0%,
+      rgba(220, 180, 150, 0.10) 25%,
+      rgba(140, 175, 210, 0.08) 65%,
+      transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+          mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+}
+.side-haze.right {
+  right: 0;
+  background:
+    linear-gradient(270deg,
+      rgba(248, 222, 184, 0.16) 0%,
+      rgba(220, 180, 150, 0.10) 25%,
+      rgba(140, 175, 210, 0.08) 65%,
+      transparent 100%);
+  -webkit-mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
+          mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
+}
+/* breath: subtle 9-second pulse so the world feels alive */
+@keyframes haze-breathe {
+  0%, 100% { opacity: 0.42; }
+  50%      { opacity: 0.66; }
+}
+.side-haze { animation: haze-breathe 9s ease-in-out infinite; }
+.side-haze.right { animation-delay: -4.5s; }
+
+/* ===== Signature line-reveal motion ===========================
+   Every horizontal divider in the product paints itself from left to
+   right when it enters the viewport. The actual visible line is a
+   pseudo-element so we can scaleX(0 → 1) without disturbing layout. */
+@keyframes line-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.line-reveal {
+  position: relative;
+}
+.line-reveal::after,
+.floating-tab.open .tab-nav::after,
+.floating-tab.open .tab-section-eyebrow::after,
+.floating-tab.open .tab-stats-inline::before,
+.floating-tab.open .lm-row::after,
+.bottom-hint::after,
+.left-rail .rail-title::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--accent) 12%,
+    var(--ink-1) 30%,
+    var(--line-strong) 65%,
+    transparent 100%);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  animation: line-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+/* Suppress the original solid borders so the animated sweep is the line */
+.floating-tab.open .tab-nav { border-bottom-color: transparent; position: relative; }
+.floating-tab.open .tab-section-eyebrow { border-bottom-color: transparent; position: relative; }
+.floating-tab.open .lm-row { border-bottom-color: transparent; position: relative; }
+.floating-tab.open .tab-stats-inline { border-top: none; position: relative; }
+.floating-tab.open .tab-stats-inline::before { top: 0; bottom: auto; }
+.left-rail .rail-title { position: relative; padding-bottom: 8px; }
+.bottom-hint { position: absolute; }
+.bottom-hint::after { bottom: auto; top: -12px; left: 24px; right: 24px; }
+
+/* Stagger the sweeps across the section blocks so they don't all fire in unison */
+.floating-tab.open .tab-nav::after            { animation-delay: 0.45s; }
+.floating-tab.open .tab-section-eyebrow::after{ animation-delay: 0.58s; }
+.floating-tab.open .tab-stats-inline::before  { animation-delay: 0.40s; }
+.floating-tab.open .lm-row:nth-child(1)::after{ animation-delay: 0.66s; }
+.floating-tab.open .lm-row:nth-child(2)::after{ animation-delay: 0.74s; }
+.floating-tab.open .lm-row:nth-child(3)::after{ animation-delay: 0.82s; }
+.floating-tab.open .lm-row:nth-child(4)::after{ animation-delay: 0.90s; }
+.floating-tab.open .lm-row:nth-child(n+5)::after{ animation-delay: 0.98s; }
+
+/* ===== app shell ========================================== */
+
+.app {
+  position: relative;
+  width: 100%; height: 100%;
+  z-index: 2;
+}
+
+#globe-mount {
+  position: absolute; inset: 0;
+  z-index: 1;
+}
+
+.ui {
+  position: absolute; inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.ui > * { pointer-events: auto; }
+
+/* ===== top bar ============================================ */
+
+.topbar {
+  position: absolute; top: 22px; left: 28px; right: 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  pointer-events: none;
+}
+.topbar > * { pointer-events: auto; }
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 32px; height: 32px;
+  position: relative;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, #5a7fa8 0%, #1a3450 50%, #050c18 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(108, 182, 255, 0.35),
+    0 0 0 4px rgba(250, 241, 221, 0.04),
+    0 0 18px rgba(108, 182, 255, 0.25);
+}
+.brand-mark::after {
+  content: '';
+  position: absolute; inset: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 241, 221, 0.15);
+}
+.brand-name {
+  font-family: var(--f-display);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink-0);
+}
+.brand-meta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-top: 4px;
+}
+
+.topbar-right {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.utc-clock {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(26, 22, 18, 0.5);
+  backdrop-filter: blur(8px);
+}
+.utc-clock .live-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 8px;
+  vertical-align: middle;
+  box-shadow: 0 0 8px var(--accent);
+  animation: livepulse 2s ease-in-out infinite;
+}
+@keyframes livepulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+/* ===== left rail: compact search ========================= */
+
+.left-rail {
+  position: absolute;
+  top: 96px; left: 28px;
+  width: 264px;
+  font-size: 13px;
+  z-index: 6;
+}
+.rail-title {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+}
+.rail-search-wrap {
+  position: relative;
+}
+.rail-search {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  background: rgba(26, 22, 18, 0.65);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-0);
+  outline: none;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rail-search:focus {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 4px rgba(244, 201, 138, 0.08);
+}
+.rail-search::placeholder { color: var(--ink-3); }
+.rail-search-icon {
+  position: absolute;
+  left: 13px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+/* dropdown city list — hidden by default, fades in when search is open */
+.rail-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  background: rgba(15, 12, 10, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-3) transparent;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.rail-list.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.rail-list::-webkit-scrollbar { width: 4px; }
+.rail-list::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+.rail-item {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.16s;
+  color: var(--ink-1);
+}
+.rail-item:hover { background: rgba(250, 241, 221, 0.06); color: var(--ink-0); }
+.rail-item.active { background: rgba(250, 241, 221, 0.08); color: var(--ink-0); }
+.rail-city { font-weight: 500; }
+.rail-country {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-left: auto;
+}
+.rail-empty {
+  font-size: 12px;
+  color: var(--ink-3);
+  padding: 12px;
+  font-style: italic;
+}
+
+/* ===== bottom hints ======================================= */
+
+.bottom-hint {
+  position: absolute; top: 232px; right: 28px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; flex-direction: column; gap: 10px;
+  align-items: flex-end;
+  text-align: right;
+  z-index: 7;
+}
+.bottom-hint .kbd {
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(250, 241, 221, 0.05);
+  font-family: var(--f-mono);
+  color: var(--ink-1);
+  margin-right: 6px;
+}
+
+.live-coords {
+  position: absolute; top: 382px; right: 28px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; gap: 14px;
+  z-index: 7;
+}
+.live-coords .col-val { color: var(--ink-1); min-width: 80px; display: inline-block; }
+
+/* ===== HOVER PIN (signature beacon) ======================= */
+
+/* Wraps pins-layer. During spatial entry the stage receives a phase class
+   which dims non-selected pins and lets the selected pin extend its stem
+   into a tall light pillar that anchors the 3D pillar mesh visually. */
+.pins-stage {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.pins-stage.phase-pillar .pin:not(.selected),
+.pins-stage.phase-open .pin:not(.selected),
+.pins-stage.phase-closing .pin:not(.selected) {
+  opacity: 0 !important;
+  transition: opacity 0.5s ease;
+}
+.pins-stage.phase-pillar .pin.selected .pin-rise {
+  height: 60vh;
+  transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pins-stage.phase-pillar .pin.selected .pin-stem {
+  width: 2.2px;
+  background: linear-gradient(to top,
+    rgba(244, 201, 138, 0.05),
+    rgba(244, 201, 138, 0.9) 35%,
+    rgba(255, 244, 220, 1) 100%);
+  box-shadow:
+    0 0 14px rgba(244, 201, 138, 0.9),
+    0 0 36px rgba(244, 201, 138, 0.5);
+}
+.pins-stage.phase-pillar .pin.selected .pin-node {
+  transform: translate(-50%, 0) scale(1.4);
+  box-shadow:
+    0 0 0 2px rgba(250, 241, 221, 1),
+    0 0 0 6px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(244, 201, 138, 1),
+    0 0 120px rgba(244, 201, 138, 0.5);
+  animation: ring-breathe 1.8s ease-in-out infinite;
+}
+.pins-stage.phase-open .pin.selected {
+  opacity: 0 !important;
+  transition: opacity 0.4s ease;
+}
+.pins-stage.phase-closing .pin.selected .pin-rise {
+  height: 30vh;
+  opacity: 0.6;
+  transition: height 0.6s cubic-bezier(0.55, 0, 0.78, 0.2), opacity 0.6s ease;
+}
+@keyframes ring-breathe {
+  0%, 100% { transform: translate(-50%, 0) scale(1.4) rotate(-2deg); }
+  50%      { transform: translate(-50%, -3px) scale(1.43) rotate(2deg); }
+}
+
+.pins-layer {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  overflow: visible;
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  --rise: 0;             /* 0 idle, 1 fully hovered/selected/center */
+  --depth: 1;            /* 0 hidden behind globe, 1 fully facing camera */
+  --label-vis: 0;
+  transition: opacity 0.3s;
+  will-change: transform;
+}
+
+/* Always-on dot at globe surface */
+.pin-dot {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translate(-50%, 50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow:
+    0 0 0 1.5px rgba(250, 241, 221, 0.35),
+    0 0 10px rgba(244, 201, 138, 0.55);
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: calc(1 - var(--rise));
+  transition: transform 0.18s, opacity 0.3s, background 0.2s;
+}
+.pin-dot:hover {
+  transform: translate(-50%, 50%) scale(1.6);
+  background: oklch(0.85 0.18 75);
+}
+
+/* Always-on tiny city name next to the dot. Scales + fades with --depth so
+   cities on the limb shrink quietly out, and the city under the cursor (risen)
+   defers to the larger label that comes with the rise treatment. */
+.pin-name {
+  position: absolute;
+  left: 10px;
+  bottom: -4px;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: calc(8px + var(--depth, 1) * 3px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-1);
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.95),
+    0 0 1px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transform: translateY(50%);
+  transition: opacity 0.25s, font-size 0.25s, color 0.2s;
+  pointer-events: none;
+}
+.pin.label-anchor .pin-name {
+  opacity: calc(var(--depth, 1) * 0.78 * (1 - var(--rise, 0)));
+}
+.pin.risen .pin-name { opacity: 0; }
+
+/* Risen pin: stem + photo + label, fades in with --rise */
+.pin-rise {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translate(-50%, 0);
+  width: 0;
+  height: calc(var(--rise) * 110px);
+  pointer-events: none;
+  opacity: var(--rise);
+  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s;
+}
+.pin.risen .pin-rise {
+  animation: pin-bob 2.2s ease-in-out infinite;
+}
+.pin.risen:hover .pin-rise,
+.pin.risen .pin-node:hover ~ * {
+  animation-duration: 5.5s;
+}
+
+/* Auto-rise (centered but no mouse intent) → subtler than intentional hover/select.
+   Cuts the photo down, hides the label, dims the glow. */
+.pin.risen:not(.intentional) .pin-node {
+  transform: translate(-50%, 0) scale(0.7);
+  box-shadow:
+    0 0 0 1.2px rgba(250, 241, 221, 0.4),
+    0 0 0 3px rgba(0, 0, 0, 0.35),
+    0 0 14px rgba(244, 201, 138, 0.28),
+    0 5px 14px rgba(0, 0, 0, 0.45);
+}
+.pin.risen:not(.intentional) .pin-rise {
+  height: 60px;
+}
+.pin.risen:not(.intentional) .pin-node-label {
+  opacity: 0;
+}
+
+@keyframes pin-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -4px); }
+}
+
+.pin-stem {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 1.2px;
+  height: 100%;
+  background: linear-gradient(to top,
+    rgba(244, 201, 138, 0),
+    rgba(244, 201, 138, 0.7) 35%,
+    rgba(250, 241, 221, 0.95) 100%);
+  box-shadow: 0 0 5px rgba(244, 201, 138, 0.6);
+}
+.pin-node {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg-2);
+  transition: box-shadow 0.3s, transform 0.3s;
+  box-shadow:
+    0 0 0 1.5px rgba(250, 241, 221, 0.65),
+    0 0 0 4px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(244, 201, 138, 0.5),
+    0 8px 22px rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.pin-node:hover {
+  transform: translate(-50%, -2px) scale(1.06);
+  box-shadow:
+    0 0 0 2px rgba(250, 241, 221, 0.9),
+    0 0 0 5px rgba(0, 0, 0, 0.5),
+    0 0 32px rgba(244, 201, 138, 0.75),
+    0 12px 28px rgba(0, 0, 0, 0.6);
+}
+.pin-node img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pin-node::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.3);
+}
+.pin-node-label {
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translate(-50%, -10px);
+  font-family: var(--f-display);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--ink-0);
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+  opacity: var(--label-vis);
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.pin-node-label .country {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+
+/* ===== FLOATING CITY TAB (full-screen signature reveal) === */
+
+.tab-backdrop {
+  position: absolute; inset: 0;
+  z-index: 8;
+  background: rgba(8, 6, 4, 0.4);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.tab-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tab-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  perspective: 2200px;
+  perspective-origin: var(--origin-x, 50%) var(--origin-y, 35%);
+  /* hidden until the pillar stage requests visibility */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+.tab-stage.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease;
+}
+
+.floating-tab {
+  pointer-events: auto;
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(180deg, rgba(26, 22, 18, 0.98) 0%, rgba(15, 12, 10, 1) 100%);
+  border: none;
+  box-shadow: var(--shadow-tab);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  /* Unfold from the pillar's screen position. The transform-origin is the
+     pillar top; the panel scales from a tiny disc to full screen with a
+     subtle perspective rotateX, like a holographic sheet unfolding. */
+  transform-origin: var(--origin-x, 50%) var(--origin-y, 50%);
+  transform: scale(0.04) rotateX(28deg);
+  opacity: 0;
+  filter: blur(8px);
+  transition:
+    transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s ease;
+}
+.floating-tab.open {
+  transform: scale(1) rotateX(0deg);
+  opacity: 1;
+  filter: blur(0);
+}
+.floating-tab.closing {
+  transform: scale(0.04) rotateX(28deg);
+  opacity: 0;
+  filter: blur(10px);
+  transition:
+    transform 0.6s cubic-bezier(0.55, 0, 0.78, 0.2),
+    opacity 0.4s ease,
+    filter 0.4s ease;
+}
+.floating-tab::before { display: none; }
+.floating-tab::after  { display: none; }
+
+/* Holographic edge shimmer during the construction phase */
+.floating-tab::before {
+  content: '';
+  display: block;
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  background:
+    radial-gradient(ellipse at var(--origin-x, 50%) var(--origin-y, 50%),
+      rgba(244, 201, 138, 0.25) 0%,
+      rgba(244, 201, 138, 0.06) 25%,
+      transparent 55%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.floating-tab.open::before { opacity: 1; animation: holo-fade 1.4s ease 0.6s forwards; }
+@keyframes holo-fade { to { opacity: 0; } }
+
+/* === MODULE STAGGER: children of the open tab cascade in ============ */
+/* Hide first, then animate based on the open class.
+   Each item gets a slight upward motion + blur clear + fade. */
+.floating-tab .tab-hero-col,
+.floating-tab .tab-nav-btn,
+.floating-tab .tab-section-title,
+.floating-tab .tab-section-eyebrow,
+.floating-tab .lm-row,
+.floating-tab .trend-row,
+.floating-tab .food-card,
+.floating-tab .weather-row,
+.floating-tab .weather-chart,
+.floating-tab .weather-forecast,
+.floating-tab .post {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(8px);
+}
+.floating-tab.open .tab-hero-col,
+.floating-tab.open .tab-nav-btn,
+.floating-tab.open .tab-section-title,
+.floating-tab.open .tab-section-eyebrow,
+.floating-tab.open .lm-row,
+.floating-tab.open .trend-row,
+.floating-tab.open .food-card,
+.floating-tab.open .weather-row,
+.floating-tab.open .weather-chart,
+.floating-tab.open .weather-forecast,
+.floating-tab.open .post {
+  animation: module-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes module-in {
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+/* Stagger schedule — hero first, then nav, then content blocks */
+.floating-tab.open .tab-hero-col       { animation-delay: 0.15s; }
+.floating-tab.open .tab-nav-btn:nth-child(1) { animation-delay: 0.40s; }
+.floating-tab.open .tab-nav-btn:nth-child(2) { animation-delay: 0.48s; }
+.floating-tab.open .tab-nav-btn:nth-child(3) { animation-delay: 0.56s; }
+.floating-tab.open .tab-nav-btn:nth-child(4) { animation-delay: 0.64s; }
+.floating-tab.open .tab-nav-btn:nth-child(5) { animation-delay: 0.72s; }
+.floating-tab.open .tab-section-title  { animation-delay: 0.50s; }
+.floating-tab.open .tab-section-eyebrow{ animation-delay: 0.56s; }
+.floating-tab.open .lm-row:nth-child(1),
+.floating-tab.open .trend-row:nth-child(1),
+.floating-tab.open .food-card:nth-child(1),
+.floating-tab.open .weather-row,
+.floating-tab.open .post:nth-child(1)  { animation-delay: 0.62s; }
+.floating-tab.open .lm-row:nth-child(2),
+.floating-tab.open .trend-row:nth-child(2),
+.floating-tab.open .food-card:nth-child(2),
+.floating-tab.open .weather-chart,
+.floating-tab.open .post:nth-child(2)  { animation-delay: 0.70s; }
+.floating-tab.open .lm-row:nth-child(3),
+.floating-tab.open .trend-row:nth-child(3),
+.floating-tab.open .food-card:nth-child(3),
+.floating-tab.open .weather-forecast,
+.floating-tab.open .post:nth-child(3)  { animation-delay: 0.78s; }
+.floating-tab.open .lm-row:nth-child(4),
+.floating-tab.open .trend-row:nth-child(4),
+.floating-tab.open .food-card:nth-child(4) { animation-delay: 0.86s; }
+.floating-tab.open .lm-row:nth-child(n+5),
+.floating-tab.open .trend-row:nth-child(n+5),
+.floating-tab.open .food-card:nth-child(n+5),
+.floating-tab.open .post:nth-child(n+4) { animation-delay: 0.94s; }
+
+/* close */
+.tab-close {
+  position: absolute;
+  top: 24px; right: 28px;
+  z-index: 10;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(15, 12, 10, 0.55);
+  border: 1px solid var(--line);
+  color: var(--ink-0);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: background 0.2s, transform 0.2s;
+}
+.tab-close:hover {
+  background: rgba(15, 12, 10, 0.85);
+  border-color: var(--line-strong);
+  transform: rotate(90deg);
+}
+
+/* ===== LEFT SIDE: hero column ===== */
+.tab-hero-col {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-1);
+}
+.tab-hero-col .hero-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.05);
+  transition: opacity 0.6s ease;
+  /* Slow ken-burns — a 24-second drift gives the still photo a sense of
+     living time without ever feeling like a video. */
+  animation: ken-burns 28s ease-in-out infinite alternate;
+  transform-origin: 50% 55%;
+}
+.tab-hero-col .hero-img.swapping { opacity: 0.55; }
+@keyframes ken-burns {
+  0%   { transform: scale(1.02) translate3d(0, 0, 0); }
+  100% { transform: scale(1.14) translate3d(-2%, -1.5%, 0); }
+}
+
+/* Soft radial flare anchored behind the title to lift the type off the photo */
+.hero-flare {
+  position: absolute;
+  left: 0; right: 30%;
+  bottom: 0; height: 70%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 25% 80%,
+      rgba(244, 201, 138, 0.18) 0%,
+      transparent 70%);
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+/* Giant translucent trend-score watermark in the top-right of the hero.
+   Pure typography flex — communicates "trending: 94" with one number. */
+.hero-trend-watermark {
+  position: absolute;
+  top: -34px; right: -12px;
+  z-index: 2;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(180px, 22vw, 360px);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--ink-0);
+  opacity: 0.08;
+  pointer-events: none;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  user-select: none;
+}
+
+/* Coordinates dial — sits in the top-right of the hero column above the
+   watermark. Outer ticks rotate slowly to suggest "live reading". */
+.coords-dial {
+  position: absolute;
+  top: 28px; right: 28px;
+  z-index: 3;
+  width: 96px; height: 96px;
+  pointer-events: none;
+}
+.coords-dial svg { width: 100%; height: 100%; display: block; }
+.coords-dial .dial-ring { transform-origin: 50% 50%; animation: dial-spin 36s linear infinite; }
+@keyframes dial-spin { to { transform: rotate(360deg); } }
+.coords-dial-readout {
+  position: absolute;
+  top: 100%; right: 0;
+  margin-top: 6px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-1);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  text-align: right;
+  display: grid; gap: 2px;
+}
+.tab-hero-col::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(95deg,
+      rgba(15, 12, 10, 0.05) 0%,
+      rgba(15, 12, 10, 0.15) 50%,
+      rgba(15, 12, 10, 0.85) 100%);
+  pointer-events: none;
+}
+.tab-hero-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 36px 36px 32px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.tab-hero-meta {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-1);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+.tab-hero-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.tab-title-block { padding-bottom: 0; }
+.tab-title {
+  font-family: var(--f-display);
+  font-size: clamp(64px, 8vw, 132px);
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: var(--ink-0);
+  margin: 0;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+.tab-country {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: clamp(20px, 2.2vw, 32px);
+  color: var(--ink-1);
+  margin-top: 6px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+}
+.tab-overview-hero {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-1);
+  text-wrap: pretty;
+  max-width: 38ch;
+  margin-top: 18px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Compact stat row inside hero (single-line) */
+.tab-stats-inline {
+  display: flex; gap: 22px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(250, 241, 221, 0.12);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  flex-wrap: wrap;
+}
+.tab-stats-inline .stat-pair {
+  display: flex; align-items: baseline; gap: 8px;
+}
+.tab-stats-inline .stat-pair .v {
+  font-family: var(--f-display);
+  font-style: normal;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--ink-0);
+}
+
+/* Landmark thumb strip overlaid at bottom-left of hero */
+.tab-landmark-strip {
+  position: absolute;
+  left: 36px; right: 36px;
+  bottom: 24px;
+  z-index: 3;
+  display: flex; gap: 10px;
+  align-items: center;
+  pointer-events: auto;
+}
+.lm-thumb {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(250, 241, 221, 0.25);
+  background: var(--bg-2);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.lm-thumb:hover {
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--accent);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent);
+}
+.lm-thumb.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 22px rgba(0, 0, 0, 0.6);
+}
+.lm-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.lm-thumb.is-city::after {
+  content: '⌖';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--ink-0);
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.lm-thumb.is-city:hover::after { opacity: 1; }
+.lm-thumb-caption {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  max-width: 200px;
+}
+.lm-thumb-caption .l-name {
+  display: block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-0);
+  letter-spacing: -0.005em;
+  text-transform: none;
+  margin-bottom: 2px;
+}
+
+/* ===== RIGHT SIDE: content column ===== */
+.tab-content-col {
+  display: flex; flex-direction: column;
+  height: 100%;
+  border-left: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(26, 22, 18, 1), rgba(15, 12, 10, 1));
+  min-height: 0;
+}
+
+/* TAB NAV */
+.tab-nav {
+  display: flex;
+  padding: 28px 36px 0;
+  gap: 4px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+}
+.tab-nav-btn {
+  padding: 12px 16px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.18s;
+  margin-bottom: -1px;
+}
+.tab-nav-btn:hover { color: var(--ink-0); }
+.tab-nav-btn.active { color: var(--ink-0); }
+.tab-nav-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 16px; right: 16px;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* TAB CONTENT */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 36px 40px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-3) transparent;
+  min-height: 0;
+}
+.tab-content::-webkit-scrollbar { width: 4px; }
+.tab-content::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+.tab-section-title {
+  font-family: var(--f-display);
+  font-size: 32px;
+  letter-spacing: -0.015em;
+  color: var(--ink-0);
+  margin: 0 0 6px;
+}
+.tab-section-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* === per-section blocks (rendered inside tab-content) === */
+
+/* landmarks */
+.lm-list { display: flex; flex-direction: column; gap: 0; }
+.lm-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  cursor: pointer;
+  transition: padding 0.2s, background 0.2s;
+}
+.lm-row:hover { padding-left: 6px; }
+.lm-row.active {
+  padding-left: 12px;
+  background: linear-gradient(90deg, rgba(244, 201, 138, 0.06), transparent 80%);
+  border-left: 2px solid var(--accent);
+}
+.lm-row:last-child { border-bottom: none; }
+.lm-row .lm-img {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.lm-row .lm-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lm-row:hover .lm-img img { transform: scale(1.15); }
+.lm-row .lm-img { position: relative; }
+.lm-row .lm-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%,
+    transparent 50%, rgba(244, 201, 138, 0.25) 100%);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.lm-row:hover .lm-img::after { opacity: 1; }
+.lm-row:hover .lm-name { color: var(--accent); transition: color 0.25s; }
+.lm-body .lm-name {
+  font-family: var(--f-display);
+  font-size: 19px;
+  letter-spacing: -0.005em;
+  color: var(--ink-0);
+  display: flex; align-items: center; gap: 10px;
+}
+.lm-body .lm-map-hint {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 3px 8px 3px 6px;
+  border: 1px solid rgba(244, 201, 138, 0.4);
+  border-radius: 999px;
+  background: rgba(244, 201, 138, 0.08);
+}
+.lm-body .lm-cat {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 2px 0 4px;
+}
+.lm-body .lm-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-1);
+  text-wrap: pretty;
+}
+.lm-rating {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--ink-1);
+  display: flex; align-items: center; gap: 5px;
+}
+.lm-rating .star { color: var(--accent); }
+
+/* trending */
+.trend-list { display: flex; flex-direction: column; gap: 14px; }
+.trend-row {
+  display: grid;
+  grid-template-columns: 1fr 180px 36px;
+  gap: 16px;
+  align-items: center;
+}
+.trend-tag {
+  font-size: 14px;
+  color: var(--ink-0);
+}
+.trend-tag .ctx {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+.trend-bar {
+  height: 4px;
+  background: rgba(250, 241, 221, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.trend-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-deep), var(--accent));
+  border-radius: 999px;
+  box-shadow: 0 0 8px rgba(244, 201, 138, 0.4);
+  transform-origin: 0 50%;
+  animation: trend-fill 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes trend-fill {
+  from { transform: scaleX(0); opacity: 0.4; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.trend-row:nth-child(1) .trend-bar .fill { animation-delay: 0.70s; }
+.trend-row:nth-child(2) .trend-bar .fill { animation-delay: 0.78s; }
+.trend-row:nth-child(3) .trend-bar .fill { animation-delay: 0.86s; }
+.trend-row:nth-child(4) .trend-bar .fill { animation-delay: 0.94s; }
+.trend-row:nth-child(n+5) .trend-bar .fill { animation-delay: 1.02s; }
+.trend-score {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--ink-1);
+  text-align: right;
+}
+
+/* food */
+.food-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.food-card {
+  background: rgba(250, 241, 221, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+.food-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  background: rgba(250, 241, 221, 0.05);
+}
+.food-cat {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.food-name {
+  font-family: var(--f-display);
+  font-size: 19px;
+  margin: 5px 0 7px;
+  color: var(--ink-0);
+}
+.food-rating {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--ink-1);
+  display: flex; gap: 8px; align-items: baseline;
+  margin-bottom: 10px;
+}
+.food-rating .stars { color: var(--accent); }
+.food-rating .count { color: var(--ink-3); }
+.food-review {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-1);
+  border-left: 2px solid var(--bg-3);
+  padding-left: 10px;
+}
+
+/* weather */
+.weather-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  margin-bottom: 14px;
+  align-items: end;
+}
+.weather-now {
+  font-family: var(--f-display);
+  font-size: 72px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--ink-0);
+}
+.weather-now .deg { font-size: 28px; vertical-align: super; margin-left: 2px; }
+.weather-meta {
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.weather-meta .cond {
+  color: var(--ink-0);
+  font-size: 14px;
+  letter-spacing: normal;
+  text-transform: none;
+  font-family: var(--f-sans);
+}
+.weather-chart { width: 100%; height: 100px; margin: 8px 0 22px; }
+.weather-forecast {
+  display: flex; gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.forecast-day {
+  flex: 1;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.forecast-day .glyph {
+  display: block;
+  width: 22px; height: 22px;
+  margin: 8px auto 6px;
+  color: var(--ink-1);
+}
+.forecast-day .hi { color: var(--ink-0); font-family: var(--f-sans); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.forecast-day .lo { color: var(--ink-3); font-family: var(--f-sans); font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+/* community */
+.post {
+  display: grid; grid-template-columns: 36px 1fr; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.post:last-child { border-bottom: none; }
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  color: var(--ink-0);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.post-meta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  display: flex; gap: 10px; align-items: center;
+  margin-bottom: 6px;
+}
+.post-meta .author { color: var(--ink-0); }
+.post-text { font-size: 14px; line-height: 1.55; color: var(--ink-1); text-wrap: pretty; }
+.post-react {
+  margin-top: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ===== intro overlay ====================================== */
+
+.intro-overlay {
+  position: absolute;
+  right: 28px;
+  top: 104px;
+  transform: none;
+  text-align: right;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 0.6s;
+}
+.intro-overlay.hidden { opacity: 0; }
+.intro-overlay .eyebrow {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 14px;
+}
+.intro-overlay .headline {
+  font-family: var(--f-display);
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink-0);
+  max-width: 16ch;
+  margin: 0 0 0 auto;
+  text-wrap: balance;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== assistant ========================================== */
+
+.assistant-fab {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 30;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #2a221c 0%, #14110d 100%);
+  color: var(--ink-0);
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(244, 201, 138, 0.25);
+  transition: transform 0.2s;
+}
+.assistant-fab:hover { transform: scale(1.05); }
+.assistant-fab .spark {
+  width: 22px; height: 22px;
+  position: relative;
+}
+.assistant-fab .spark::before,
+.assistant-fab .spark::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+}
+.assistant-fab .spark::before {
+  width: 22px; height: 22px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 65%);
+  transform: translate(-50%, -50%);
+  filter: blur(2px);
+}
+.assistant-fab .spark::after {
+  width: 6px; height: 6px;
+  background: var(--ink-0);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.assistant-panel {
+  position: fixed;
+  bottom: 96px; right: 28px;
+  width: 340px;
+  max-height: min(600px, calc(100vh - 140px));
+  z-index: 29;
+  background: rgba(26, 22, 18, 0.96);
+  color: var(--ink-0);
+  border-radius: 18px;
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(250, 241, 221, 0.06);
+  backdrop-filter: blur(20px);
+  display: flex; flex-direction: column;
+  transform-origin: bottom right;
+  transform: scale(0.92) translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s;
+}
+.assistant-panel.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.assistant-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.assistant-head .title { font-family: var(--f-display); font-size: 18px; letter-spacing: -0.01em; }
+.assistant-head .sub {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+.assistant-head .close-x {
+  background: none; border: none; color: var(--ink-2);
+  font-size: 18px; cursor: pointer;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.assistant-head .close-x:hover { background: rgba(250, 241, 221, 0.06); }
+
+.assistant-body {
+  flex: 1;
+  padding: 14px 20px 18px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-3) transparent;
+}
+.assistant-body::-webkit-scrollbar { width: 4px; }
+.assistant-body::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+.assistant-msg {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  text-wrap: pretty;
+}
+.assistant-msg.bot {
+  background: rgba(250, 241, 221, 0.04);
+  border: 1px solid rgba(250, 241, 221, 0.06);
+}
+.assistant-msg.user {
+  background: var(--accent);
+  color: #1a1a1f;
+  margin-left: 32px;
+}
+
+.suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.suggest-chip {
+  font-family: var(--f-sans);
+  font-size: 11.5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-0);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.suggest-chip:hover { background: rgba(250, 241, 221, 0.08); border-color: var(--line-strong); }
+
+.jump-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.jump-chip {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(250, 241, 221, 0.04);
+  border: 1px solid var(--line);
+  color: var(--ink-0);
+  cursor: pointer;
+  text-align: left;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.jump-chip:hover { background: rgba(250, 241, 221, 0.1); }
+.jump-chip .arrow { color: var(--accent); }
+
+.assistant-input {
+  border-top: 1px solid var(--line);
+  padding: 12px 14px;
+  display: flex; gap: 8px;
+  align-items: center;
+}
+.assistant-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink-0);
+  font-family: var(--f-sans);
+  font-size: 13.5px;
+  padding: 6px 8px;
+}
+.assistant-input input::placeholder { color: var(--ink-3); }
+.assistant-input button {
+  background: var(--accent);
+  color: #1a1a1f;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.assistant-input button:disabled { opacity: 0.4; cursor: default; }
+
+.thinking-dots { display: inline-flex; gap: 3px; }
+.thinking-dots span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ink-2);
+  animation: blink 1.2s infinite ease-in-out;
+}
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
+}
+
+/* loading */
+#loading {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #0f0c0a;
+  z-index: 999;
+  transition: opacity 0.5s;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+#loading.gone { opacity: 0; pointer-events: none; }
+#loading .ring {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+  margin-right: 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* responsive */
+@media (max-width: 900px) {
+  .floating-tab { width: calc(100vw - 24px); height: calc(100vh - 100px); }
+  .left-rail { display: none; }
+  .topbar { left: 16px; right: 16px; top: 14px; }
+}
+
+
+/* ============================================================
+   ★ FLOATING TAB — v3 LIGHT TRAVEL-MAGAZINE THEME
+   The second layer should feel like an airy, climate-aware travel
+   visual system. Light, breathing, image-first. Each city subtly
+   shifts the palette, but the system stays unified.
+   ============================================================ */
+
+/* --- palette per climate. Each city receives one of these. ----- */
+/* v3.2 palettes — still light, but each climate now carries enough
+   colour weight that the difference is *obvious* on first glance.
+   bg-3 is the deepest "atmosphere" colour, used in the cover wash + a
+   3-stop side gradient. accent is bolder and shows up on country
+   italic, eyebrows, dots, hover states, chip rings. */
+.floating-tab[data-climate="coastal"] {
+  --skin-bg-1: #f7f4ec;       /* cream */
+  --skin-bg-2: #e8eef4;       /* mist */
+  --skin-bg-3: #c8d8e5;       /* sea breath */
+  --skin-tint: rgba(99, 142, 178, 0.18); /* used in cover band + halo */
+  --skin-ink-0: #1f2e3c;
+  --skin-ink-1: #4d6175;
+  --skin-ink-2: #7d90a4;
+  --skin-line:        rgba(48, 65, 80, 0.08);
+  --skin-line-strong: rgba(48, 65, 80, 0.18);
+  --skin-accent:      #4a82af;        /* punched-up blue */
+  --skin-accent-soft: rgba(74, 130, 175, 0.18);
+  --skin-card:        rgba(255, 254, 250, 0.48);
+  --skin-card-strong: rgba(255, 254, 250, 0.74);
+}
+.floating-tab[data-climate="tropical"] {
+  --skin-bg-1: #fcf3e3;       /* warm cream */
+  --skin-bg-2: #fbe1c8;       /* peach */
+  --skin-bg-3: #f3c7a4;       /* honey peach */
+  --skin-tint: rgba(220, 130, 78, 0.20);
+  --skin-ink-0: #3a261b;
+  --skin-ink-1: #745540;
+  --skin-ink-2: #a48870;
+  --skin-line:        rgba(70, 50, 40, 0.09);
+  --skin-line-strong: rgba(70, 50, 40, 0.20);
+  --skin-accent:      #c97247;        /* deeper sunset */
+  --skin-accent-soft: rgba(201, 114, 71, 0.18);
+  --skin-card:        rgba(255, 252, 246, 0.50);
+  --skin-card-strong: rgba(255, 252, 246, 0.78);
+}
+.floating-tab[data-climate="mountain"] {
+  --skin-bg-1: #f1f3ec;       /* dew cream */
+  --skin-bg-2: #dde4d9;       /* fog */
+  --skin-bg-3: #bccdc1;       /* moss */
+  --skin-tint: rgba(89, 130, 100, 0.18);
+  --skin-ink-0: #1f2c22;
+  --skin-ink-1: #4a5c4d;
+  --skin-ink-2: #85988a;
+  --skin-line:        rgba(40, 55, 42, 0.08);
+  --skin-line-strong: rgba(40, 55, 42, 0.18);
+  --skin-accent:      #4d7b5c;        /* deeper green */
+  --skin-accent-soft: rgba(77, 123, 92, 0.18);
+  --skin-card:        rgba(252, 253, 250, 0.50);
+  --skin-card-strong: rgba(252, 253, 250, 0.78);
+}
+.floating-tab[data-climate="warm"] {
+  --skin-bg-1: #fbf0db;       /* apricot cream */
+  --skin-bg-2: #f5dcb1;       /* honey */
+  --skin-bg-3: #ecbf85;       /* gold */
+  --skin-tint: rgba(196, 116, 58, 0.22);
+  --skin-ink-0: #3a2210;
+  --skin-ink-1: #7a5530;
+  --skin-ink-2: #ac8a5e;
+  --skin-line:        rgba(70, 45, 25, 0.09);
+  --skin-line-strong: rgba(70, 45, 25, 0.20);
+  --skin-accent:      #b6643b;        /* fired terracotta */
+  --skin-accent-soft: rgba(182, 100, 59, 0.18);
+  --skin-card:        rgba(255, 250, 240, 0.52);
+  --skin-card-strong: rgba(255, 250, 240, 0.80);
+}
+.floating-tab[data-climate="urban"] {
+  --skin-bg-1: #f3f1f5;       /* silver cream */
+  --skin-bg-2: #e6e2eb;       /* pearl */
+  --skin-bg-3: #c9c2d4;       /* lilac mist */
+  --skin-tint: rgba(120, 108, 168, 0.18);
+  --skin-ink-0: #251f37;
+  --skin-ink-1: #56506c;
+  --skin-ink-2: #8a82a0;
+  --skin-line:        rgba(45, 38, 60, 0.08);
+  --skin-line-strong: rgba(45, 38, 60, 0.18);
+  --skin-accent:      #6e62a2;        /* richer lilac */
+  --skin-accent-soft: rgba(110, 98, 162, 0.18);
+  --skin-card:        rgba(255, 254, 255, 0.50);
+  --skin-card-strong: rgba(255, 254, 255, 0.78);
+}
+
+/* --- core surface: light, airy, no more dark dashboard --------- */
+.floating-tab[data-climate] {
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 10%, var(--skin-bg-1) 0%, transparent 65%),
+    linear-gradient(160deg, var(--skin-bg-1) 0%, var(--skin-bg-2) 60%, var(--skin-bg-3) 100%);
+  color: var(--skin-ink-0);
+}
+
+/* Atmospheric backdrop: faintly tinted blur of the hero image. Kept very
+   quiet so the panel reads as cream first, photo-derived second. */
+.tab-atmos {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(48px) saturate(0.85);
+  transform: scale(1.2);
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+  animation: atmos-drift 36s ease-in-out infinite alternate;
+}
+@keyframes atmos-drift {
+  0%   { transform: scale(1.18) translate(0, 0); }
+  100% { transform: scale(1.24) translate(-1.5%, -1%); }
+}
+.tab-atmos-wash {
+  position: absolute; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      var(--skin-bg-1) 0%, transparent 70%),
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.30) 50%,
+      rgba(255, 255, 255, 0.18) 100%);
+}
+/* Lift only the actual content columns above the atmospheric backdrop.
+   Absolutely-positioned overlays (tab-close, lightbox) MUST keep their
+   own positioning — otherwise the grid collapses content into a corner. */
+.floating-tab[data-climate] > .tab-hero-col,
+.floating-tab[data-climate] > .tab-content-col {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- hero column — keep the photo, lighten everything around it - */
+.floating-tab[data-climate] .tab-hero-col {
+  background: transparent;
+}
+.floating-tab[data-climate] .tab-hero-col::after {
+  /* Soft warm wash anchored bottom-left so the title block sits on a
+     diffuse light field instead of a hard dark scrim. The top-right of
+     the photo stays clean and visible. */
+  background:
+    radial-gradient(ellipse 90% 75% at 12% 88%,
+      var(--skin-bg-1) 0%,
+      rgba(255, 255, 255, 0.4) 38%,
+      transparent 75%),
+    linear-gradient(180deg,
+      transparent 55%,
+      rgba(255, 255, 255, 0.15) 100%);
+  opacity: 0.95;
+}
+.floating-tab[data-climate] .tab-hero-col .hero-img {
+  filter: saturate(0.96) contrast(1.02) brightness(1.02);
+}
+
+/* hero text: now darker against the lighter wash */
+.floating-tab[data-climate] .tab-hero-meta {
+  color: var(--skin-ink-1);
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.55);
+}
+.floating-tab[data-climate] .tab-hero-meta .dot { background: var(--skin-accent); }
+.floating-tab[data-climate] .tab-title {
+  color: var(--skin-ink-0);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55),
+    0 6px 28px rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+}
+.floating-tab[data-climate] .tab-country {
+  color: var(--skin-ink-1);
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.5);
+}
+.floating-tab[data-climate] .tab-overview-hero {
+  color: var(--skin-ink-1);
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.5);
+}
+/* ============================================================
+   ★ LAYER 2 — CITY COVER  (v4: editorial magazine cover)
+   Three zones top → bottom: meta bar, editorial centre, BIG tab strip.
+   Composition uses photo + climate wash + paper grain + corner frame
+   so the page reads as a *designed cover*, not "photo + text on it".
+   ============================================================ */
+.city-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-rows: auto 1fr auto;     /* topbar / centre / tabs */
+  overflow: hidden;
+}
+/* Decorative corner ornaments (8 tiny SVG marks) */
+.cover-corner {
+  position: absolute;
+  width: 64px; height: 64px;
+  color: var(--skin-ink-1);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 6;
+}
+.cover-corner.tl { top: 18px; left: 18px; }
+.cover-corner.tr { top: 18px; right: 18px; transform: scaleX(1); }
+.cover-corner.bl { bottom: 130px; left: 18px; }
+.cover-corner.br { bottom: 130px; right: 18px; }
+
+/* paper-grain noise on top of the photo for film-like texture */
+.city-cover::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.85  0 0 0 0 0.75  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.cover-photo {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.92) contrast(1.02) brightness(1.04);
+  animation: ken-burns 34s ease-in-out infinite alternate;
+  z-index: 0;
+}
+/* Light, climate-tinted wash. Three superimposed gradients give the
+   page a real *atmosphere* tied to the climate accent: a coloured
+   halo top-right (sky/sun), a coloured haze bottom-left (sea/dust),
+   and the cream bottom fade where text sits. */
+.cover-wash {
+  position: absolute; inset: 0;
+  z-index: 1;
+  background:
+    /* coloured atmosphere — top-right halo (sun / sky tint) */
+    radial-gradient(ellipse 55% 60% at 88% 12%,
+      var(--skin-tint, transparent) 0%, transparent 65%),
+    /* coloured atmosphere — bottom-left haze */
+    radial-gradient(ellipse 50% 55% at 6% 90%,
+      var(--skin-tint, transparent) 0%, transparent 60%),
+    /* cream wash bottom where the text + tabs sit */
+    linear-gradient(180deg,
+      transparent 0%,
+      transparent 28%,
+      color-mix(in oklab, var(--skin-bg-1) 70%, transparent) 60%,
+      color-mix(in oklab, var(--skin-bg-1) 92%, transparent) 82%,
+      var(--skin-bg-1) 100%),
+    /* edge softeners — climate-tinted left/right vignettes */
+    linear-gradient(90deg,
+      color-mix(in oklab, var(--skin-bg-3) 65%, transparent) 0%,
+      transparent 22%, transparent 78%,
+      color-mix(in oklab, var(--skin-bg-3) 65%, transparent) 100%);
+}
+
+/* Coloured top stripe — a 6px climate-accent ribbon at the very top
+   of the cover so the city's mood is signalled before you read a word. */
+.city-cover::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  z-index: 6;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--skin-accent) 18%,
+    var(--skin-accent) 82%,
+    transparent 100%);
+  opacity: 0.55;
+}
+/* TOP — meta bar */
+.cover-topbar {
+  position: relative; z-index: 5;
+  padding: 32px 56px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--skin-ink-1);
+  text-shadow: 0 1px 8px rgba(255,255,255,0.55);
+}
+.cover-meta {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.cover-meta-key { color: var(--skin-accent); font-weight: 600; }
+.cover-meta-sep { color: var(--skin-line-strong); }
+.cover-edition {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--skin-ink-2);
+  text-transform: none;
+}
+
+/* CENTER — editorial title block */
+.cover-inner {
+  position: relative;
+  z-index: 5;
+  align-self: center;
+  justify-self: center;
+  width: min(820px, 78%);
+  display: flex; flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 20px;
+}
+.cover-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+  margin-bottom: 22px;
+  text-shadow: 0 1px 6px rgba(255,255,255,0.55);
+}
+.cover-eyebrow::before,
+.cover-eyebrow::after {
+  content: ''; display: inline-block; vertical-align: middle;
+  width: 28px; height: 1px; background: currentColor; opacity: 0.5;
+  margin: 0 14px;
+}
+.cover-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 35;
+  font-size: clamp(96px, 13vw, 200px);
+  line-height: 0.84;
+  letter-spacing: -0.034em;
+  color: var(--skin-ink-0);
+  margin: 0;
+  text-wrap: balance;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 6px 36px rgba(255, 255, 255, 0.55);
+}
+.cover-country {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-variation-settings: 'opsz' 36, 'SOFT' 75;
+  font-size: clamp(26px, 2.8vw, 40px);
+  color: var(--skin-accent);
+  margin-top: 14px;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.6);
+}
+.cover-desc {
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.55;
+  color: var(--skin-ink-0);
+  font-weight: 500;
+  max-width: 56ch;
+  margin: 26px auto 0;
+  text-wrap: pretty;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.65);
+}
+.cover-deck {
+  display: flex; gap: 14px; align-items: center;
+  margin-top: 24px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+}
+.cover-deck .sep { color: var(--skin-line-strong); }
+
+/* BOTTOM — five BIG section tabs */
+.cover-tabs {
+  position: relative; z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 0 34px 30px;
+  perspective: 1400px;
+}
+.cover-tab {
+  position: relative;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      color-mix(in oklab, var(--skin-accent-soft) 54%, white) 52%,
+      rgba(255, 255, 255, 0.68) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  min-height: 132px;
+  padding: 24px 16px 18px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 9px;
+  color: var(--skin-ink-0);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  border-radius: 18px;
+  transform-origin: 50% 100%;
+  transition:
+    background 0.3s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    color 0.3s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 14px 34px rgba(0, 0, 0, 0.09),
+    0 34px 80px -44px var(--skin-accent);
+}
+.cover-tab::before {
+  /* thin climate-accent strip across the top of every tab */
+  content: '';
+  position: absolute; top: 0; left: 14%; right: 14%;
+  height: 2px;
+  background: var(--skin-accent);
+  opacity: 0.55;
+  border-radius: 999px;
+  transition: opacity 0.3s, height 0.3s, left 0.3s, right 0.3s;
+}
+.cover-tab:hover::before { opacity: 1; height: 3px; left: 6%; right: 6%; }
+.cover-tab:hover {
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-10px) rotateX(7deg);
+  color: var(--skin-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 18px 36px rgba(0, 0, 0, 0.12),
+    0 30px 80px -20px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+}
+.cover-tab:active {
+  transform: translateY(-14px) rotateX(-18deg) scale(0.98);
+}
+.cover-tab:hover ~ .cover-tab { /* nothing — keep neighbours quiet */ }
+.cover-tab-num {
+  position: absolute; top: 10px; left: 14px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--skin-ink-2);
+  opacity: 0.7;
+}
+.cover-tab-icon {
+  color: var(--skin-accent);
+  display: inline-flex;
+  margin-bottom: 4px;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cover-tab:hover .cover-tab-icon {
+  transform: translateY(-2px) scale(1.12) rotate(-3deg);
+}
+.cover-tab-label {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 36, 'SOFT' 60;
+  font-size: clamp(24px, 2.2vw, 32px);
+  letter-spacing: -0.005em;
+  line-height: 1.05;
+}
+.cover-tab-tag {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+  opacity: 0.78;
+}
+
+/* Cover fade-in stagger */
+.floating-tab.open .cover-topbar  { animation: cover-fade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both; }
+.floating-tab.open .cover-eyebrow { animation: cover-fade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both; }
+.floating-tab.open .cover-title   { animation: cover-fade 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both; }
+.floating-tab.open .cover-country { animation: cover-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both; }
+.floating-tab.open .cover-desc    { animation: cover-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.62s both; }
+.floating-tab.open .cover-deck    { animation: cover-fade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.72s both; }
+.floating-tab.open .cover-corner  { animation: cover-fade 1.0s ease-out 0.20s both; }
+.floating-tab.open .cover-tab     { animation: cover-tab-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) calc(0.78s + var(--i, 0) * 0.08s) both; }
+@keyframes cover-fade {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+@keyframes cover-tab-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   ★ LAYER 3 — SECTION ZOOM
+   When a chip is tapped, this glass panel zooms in over Layer 2.
+   ============================================================ */
+/* Cover stays put — the visible "book opening" effect is entirely
+   carried by the section-zoom's @page-open keyframes flipping up.
+   (Tried recede-the-cover; the host's grid + multi-stack contexts
+    wouldn't honour the transform even via !important inline. The
+    section-zoom rotateX gives all the flip drama we need anyway.) */
+
+.section-zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  background:
+    radial-gradient(ellipse 42% 36% at 16% 18%,
+      color-mix(in oklab, var(--skin-accent-soft) 70%, transparent) 0%,
+      transparent 72%),
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--skin-bg-1) 92%, white) 0%,
+      var(--skin-bg-2) 100%);
+  backdrop-filter: blur(20px) saturate(1.05);
+  -webkit-backdrop-filter: blur(20px) saturate(1.05);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  /* Book-open flip: page lifts up from the bottom (where the tab strip
+     lives), rotating up around its lower edge — like flipping open a
+     paper magazine. */
+  animation: page-open 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: 50% 92%;
+  transform-style: preserve-3d;
+  perspective: 1800px;
+  box-shadow:
+    0 -40px 80px -40px rgba(0, 0, 0, 0.18),
+    0 -2px 0 var(--skin-line-strong);
+}
+@keyframes page-open {
+  0%   { opacity: 0; transform: perspective(1800px) rotateX(-78deg) translateY(8%); filter: blur(8px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: perspective(1800px) rotateX(0) translateY(0); filter: blur(0); }
+}
+.zoom-back {
+  position: absolute;
+  top: 22px; left: 26px;
+  z-index: 8;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px 12px 16px;
+  font-size: 11.5px !important;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--skin-ink-1);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--skin-line);
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, transform 0.2s, color 0.2s;
+}
+.zoom-back:hover {
+  background: #fff;
+  color: var(--skin-accent);
+  transform: translateX(-2px);
+}
+.zoom-back svg { color: var(--skin-accent); }
+/* Internal section nav — switch between sections IN PLACE, page-flip body.
+   pointer-events: none on the wrapper so the transparent padding around
+   the chips doesn't eat clicks meant for the back button below. */
+.zoom-tabs {
+  position: relative;
+  z-index: 4;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center;
+  padding: 78px 28px 0;
+  pointer-events: none;
+}
+.zoom-tab { pointer-events: auto; }
+.zoom-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--skin-ink-1);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255,255,255,0.82);
+  border-radius: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 0.25s, color 0.25s, transform 0.3s, box-shadow 0.3s;
+}
+.zoom-tab svg { color: var(--skin-ink-2); transition: color 0.25s, transform 0.3s; }
+.zoom-tab:hover {
+  color: var(--skin-ink-0);
+  background: rgba(255, 255, 255, 0.75);
+  transform: translateY(-1px);
+}
+.zoom-tab:hover svg { color: var(--skin-accent); transform: scale(1.1); }
+.zoom-tab.active {
+  color: var(--skin-ink-0);
+  background: #fff;
+  border-color: var(--skin-accent-soft);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 10px 26px rgba(0, 0, 0, 0.1),
+    0 24px 70px -42px var(--skin-accent);
+}
+.zoom-tab.active svg { color: var(--skin-accent); }
+
+/* Body wrapper — page-flip animation runs on each key change */
+.zoom-body {
+  flex: 1;
+  width: min(1160px, 94%);
+  margin: 22px auto 0;
+  padding: 0 0 60px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--skin-line-strong) transparent;
+  perspective: 1600px;
+  animation: page-flip 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: 50% 0;
+}
+.zoom-body::-webkit-scrollbar { width: 4px; }
+.zoom-body::-webkit-scrollbar-thumb { background: var(--skin-line-strong); border-radius: 2px; }
+
+@keyframes page-flip {
+  from {
+    opacity: 0;
+    transform: rotateY(-14deg) translateY(20px) translateZ(-40px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0) translateY(0) translateZ(0);
+    filter: blur(0);
+  }
+}
+
+/* Section title / eyebrow — much larger inside the zoom.
+   Higher-specificity selector wins over .floating-tab[data-climate] rules. */
+.floating-tab[data-climate] .section-zoom .tab-section-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  font-size: clamp(64px, 7.2vw, 104px);
+  line-height: 0.92;
+  letter-spacing: -0.024em;
+  color: var(--skin-ink-0);
+  margin: 0 0 12px;
+}
+.floating-tab[data-climate] .section-zoom .tab-section-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--skin-line);
+}
+.section-zoom .lm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.section-zoom .lm-card { aspect-ratio: 4 / 3.05; border-radius: 22px; }
+.section-zoom .lm-card-caption .name {
+  font-size: clamp(22px, 2.1vw, 28px);
+}
+.section-zoom .lm-card-caption .cat {
+  font-size: 11px;
+  letter-spacing: 0.26em;
+}
+
+.section-zoom .trend-list { display: flex; flex-direction: column; gap: 12px; }
+.section-zoom .trend-row {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 18px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr 220px 50px;
+  gap: 20px;
+  align-items: center;
+}
+.section-zoom .trend-tag {
+  font-family: var(--f-display);
+  font-size: 28px;
+  font-variation-settings: 'opsz' 36, 'SOFT' 50;
+  color: var(--skin-ink-0);
+}
+.section-zoom .trend-tag .ctx {
+  font-family: var(--f-sans);
+  font-size: 14px;
+  margin-top: 4px;
+  color: var(--skin-ink-2);
+}
+.section-zoom .trend-bar { height: 5px; }
+.section-zoom .trend-score { font-size: 14px; }
+
+.section-zoom .food-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.section-zoom .food-card { padding: 22px; border-radius: 20px; min-height: 220px; }
+.section-zoom .food-cat { font-size: 11px; letter-spacing: 0.26em; }
+.section-zoom .food-name { font-size: 30px; margin: 8px 0 10px; line-height: 1.02; }
+.section-zoom .food-rating { font-size: 13px; margin-bottom: 14px; }
+.section-zoom .food-review { font-size: 16.5px; line-height: 1.45; padding-left: 14px; }
+
+.section-zoom .weather-now { font-size: clamp(96px, 10vw, 140px); }
+.section-zoom .weather-now .deg { font-size: 0.36em; }
+.section-zoom .weather-meta { font-size: 16px; }
+.section-zoom .weather-meta .cond { font-size: 22px; font-family: var(--f-display); color: var(--skin-ink-0); }
+.section-zoom .weather-forecast { padding: 22px 14px; gap: 14px; }
+.section-zoom .forecast-day { font-size: 12px; }
+.section-zoom .forecast-day .hi { font-size: 16px; }
+.section-zoom .forecast-day .lo { font-size: 14px; }
+.section-zoom .forecast-day .glyph { width: 28px; height: 28px; }
+
+.section-zoom .post-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.section-zoom .post {
+  padding: 24px;
+  border-radius: 22px;
+  grid-template-columns: 52px 1fr;
+  gap: 18px;
+  background: rgba(255,255,255,0.68);
+  border: 1px solid rgba(255,255,255,0.74);
+}
+.section-zoom .avatar { width: 52px; height: 52px; font-size: 14px; }
+.section-zoom .post-meta { font-size: 11.5px; flex-wrap: wrap; row-gap: 6px; }
+.section-zoom .post-meta .passport {
+  color: var(--skin-accent);
+  background: var(--skin-accent-soft);
+  border-radius: 999px;
+  padding: 4px 8px;
+  letter-spacing: 0.08em;
+}
+.section-zoom .post-text { font-size: 18px; line-height: 1.55; }
+.section-zoom .post-react { font-size: 11px; margin-top: 10px; }
+
+
+/* Quiet single-line deck under the city description — travel-magazine
+   "credit line" voice, not a stats panel. */
+.floating-tab[data-climate] .tab-deck {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--skin-line);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+}
+.floating-tab[data-climate] .tab-deck .sep { color: var(--skin-line-strong); }
+.floating-tab[data-climate] .hero-flare {
+  background:
+    radial-gradient(ellipse 75% 60% at 22% 80%,
+      rgba(255, 255, 255, 0.65) 0%,
+      rgba(255, 255, 255, 0.25) 35%,
+      transparent 75%);
+}
+
+/* --- close button (light pill) --------------------------------- */
+.floating-tab[data-climate] .tab-close {
+  background: var(--skin-card-strong);
+  border: 1px solid var(--skin-line);
+  color: var(--skin-ink-0);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+.floating-tab[data-climate] .tab-close:hover {
+  background: #ffffff;
+  border-color: var(--skin-line-strong);
+}
+
+/* --- right column: glass page on the airy backdrop ------------- */
+.floating-tab[data-climate] .tab-content-col {
+  background:
+    linear-gradient(180deg,
+      var(--skin-card-strong) 0%,
+      var(--skin-card) 100%);
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+  border-left: 1px solid var(--skin-line);
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+/* nav: pill row, no heavy underline */
+.floating-tab[data-climate] .tab-nav {
+  border-bottom: 1px solid var(--skin-line);
+  padding: 24px 30px 0;
+  gap: 2px;
+}
+.floating-tab[data-climate] .tab-nav-btn {
+  color: var(--skin-ink-2);
+  padding: 10px 14px;
+  font-size: 9.5px;
+  border-radius: 999px;
+  transition: color 0.2s, background 0.2s;
+}
+.floating-tab[data-climate] .tab-nav-btn:hover { color: var(--skin-ink-0); background: var(--skin-card); }
+.floating-tab[data-climate] .tab-nav-btn.active {
+  color: var(--skin-ink-0);
+  background: var(--skin-card-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.floating-tab[data-climate] .tab-nav-btn.active::after { display: none; }
+
+/* section titles + eyebrows */
+.floating-tab[data-climate] .tab-section-title {
+  color: var(--skin-ink-0);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 50;
+  font-size: 30px;
+  letter-spacing: -0.012em;
+}
+.floating-tab[data-climate] .tab-section-eyebrow {
+  color: var(--skin-ink-2);
+  border-bottom-color: var(--skin-line);
+}
+
+/* line-reveal palette → use skin accent */
+.floating-tab[data-climate].open .tab-nav::after,
+.floating-tab[data-climate].open .tab-section-eyebrow::after,
+.floating-tab[data-climate].open .tab-stats-inline::before,
+.floating-tab[data-climate].open .lm-row::after {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--skin-accent) 12%,
+    var(--skin-ink-1) 30%,
+    var(--skin-line-strong) 65%,
+    transparent 100%);
+}
+
+/* --- LANDMARKS — image-first grid, click to reveal description -- */
+.floating-tab[data-climate] .lm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.lm-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 4 / 3;
+  background: var(--skin-bg-2);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 4px 18px rgba(0, 0, 0, 0.06),
+    0 10px 40px -10px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
+  animation: card-float 9s ease-in-out infinite;
+}
+.lm-card:nth-child(2n) { animation-delay: -3s; }
+.lm-card:nth-child(3n) { animation-delay: -6s; }
+@keyframes card-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.lm-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 14px 32px rgba(0, 0, 0, 0.12),
+    0 30px 70px -16px rgba(0, 0, 0, 0.18);
+}
+.lm-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s;
+  filter: saturate(0.95);
+}
+.lm-card:hover img { transform: scale(1.06); filter: saturate(1.05); }
+
+.lm-card-caption {
+  position: absolute;
+  left: 14px; right: 14px; bottom: 12px;
+  z-index: 2;
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  transition: transform 0.4s, opacity 0.3s;
+}
+.lm-card-caption .name {
+  font-family: var(--f-display);
+  font-style: normal;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 40;
+  font-size: 19px;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+}
+.lm-card-caption .cat {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+.lm-card-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    transparent 35%,
+    rgba(0, 0, 0, 0.05) 55%,
+    rgba(0, 0, 0, 0.55) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================================
+   ★ LAYER 3 — Landmark Postcard (lightbox over the panel)
+   A separate floating sheet that drifts above the whole tab.
+   Soft glass over a hazy wash; click outside (or ESC) to dismiss.
+   ============================================================ */
+.lm-lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.4s ease,
+    backdrop-filter 0.5s ease,
+    background 0.5s ease;
+}
+.lm-lightbox.open {
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+}
+.lm-lightbox-card {
+  position: relative;
+  width: min(880px, 78vw);
+  height: min(520px, 70vh);
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  background: var(--skin-card-strong, rgba(255, 255, 255, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.6) inset,
+    0 30px 80px -20px rgba(0, 0, 0, 0.22),
+    0 60px 160px -40px rgba(0, 0, 0, 0.18);
+  transform: translateY(20px) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease;
+}
+.lm-lightbox.open .lm-lightbox-card {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+.lb-photo {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  background: var(--skin-bg-2);
+}
+.lb-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.95);
+  animation: ken-burns 28s ease-in-out infinite alternate;
+}
+.lb-photo.is-fallback img {
+  object-fit: cover;
+  animation: ken-burns 34s ease-in-out infinite alternate;
+  filter: saturate(0.86) contrast(0.98);
+}
+.lb-body {
+  padding: 40px 36px 32px;
+  display: flex; flex-direction: column;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      transparent 100%);
+}
+.lb-cat {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--skin-ink-2);
+  margin-bottom: 12px;
+}
+.lb-name {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+  color: var(--skin-ink-0);
+  margin: 0 0 16px;
+}
+.lb-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--skin-ink-1);
+  text-wrap: pretty;
+  flex: 1;
+}
+.lb-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--skin-line);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.lb-rating { color: var(--skin-ink-1); }
+.lb-rating .star { color: var(--skin-accent); margin-right: 4px; }
+.lb-map {
+  color: var(--skin-accent);
+  padding: 6px 14px;
+  border: 1px solid var(--skin-accent-soft);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.lb-map:hover { background: var(--skin-accent-soft); }
+.lb-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--skin-line);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--skin-ink-1);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  backdrop-filter: blur(6px);
+}
+.lb-close:hover { background: #fff; transform: rotate(90deg); }
+@media (max-width: 900px) {
+  .lm-lightbox-card {
+    width: 92vw; height: auto; max-height: 86vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px 1fr;
+  }
+}
+
+/* --- TRENDING — soften, lighter palette, looser layout --------- */
+.floating-tab[data-climate] .trend-list { gap: 10px; }
+.floating-tab[data-climate] .trend-row {
+  background: var(--skin-card);
+  border-radius: 14px;
+  padding: 12px 16px;
+  grid-template-columns: 1fr 160px 36px;
+  transition: background 0.2s, transform 0.3s;
+}
+.floating-tab[data-climate] .trend-row:hover {
+  background: var(--skin-card-strong);
+  transform: translateX(2px);
+}
+.floating-tab[data-climate] .trend-tag { color: var(--skin-ink-0); font-size: 13px; }
+.floating-tab[data-climate] .trend-tag .ctx { color: var(--skin-ink-2); }
+.floating-tab[data-climate] .trend-bar { background: var(--skin-line); }
+.floating-tab[data-climate] .trend-bar .fill {
+  background: linear-gradient(90deg, var(--skin-accent-soft), var(--skin-accent));
+  box-shadow: 0 0 10px var(--skin-accent-soft);
+}
+.floating-tab[data-climate] .trend-score { color: var(--skin-ink-1); }
+
+/* --- FOOD — soft cards, no hard borders ------------------------ */
+.floating-tab[data-climate] .food-card {
+  background: var(--skin-card);
+  border: 1px solid var(--skin-line);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.floating-tab[data-climate] .food-card:hover {
+  background: var(--skin-card-strong);
+  border-color: var(--skin-line-strong);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+.floating-tab[data-climate] .food-cat { color: var(--skin-ink-2); }
+.floating-tab[data-climate] .food-name { color: var(--skin-ink-0); font-weight: 400; font-variation-settings: 'opsz' 72, 'SOFT' 50; }
+.floating-tab[data-climate] .food-rating { color: var(--skin-ink-1); }
+.floating-tab[data-climate] .food-rating .stars { color: var(--skin-accent); }
+.floating-tab[data-climate] .food-rating .count { color: var(--skin-ink-2); opacity: 0.7; }
+.floating-tab[data-climate] .food-review {
+  color: var(--skin-ink-1);
+  border-left-color: var(--skin-accent-soft);
+}
+
+/* --- WEATHER — keep visual, lighten palette -------------------- */
+.floating-tab[data-climate] .weather-now { color: var(--skin-ink-0); font-weight: 400; font-variation-settings: 'opsz' 144, 'SOFT' 60; }
+.floating-tab[data-climate] .weather-meta { color: var(--skin-ink-1); }
+.floating-tab[data-climate] .weather-chart {
+  --accent: var(--skin-accent);
+  --line: var(--skin-line);
+  --ink-3: var(--skin-ink-2);
+}
+.floating-tab[data-climate] .forecast-day { color: var(--skin-ink-2); }
+.floating-tab[data-climate] .forecast-day .hi { color: var(--skin-ink-0); }
+.floating-tab[data-climate] .forecast-day .lo { color: var(--skin-ink-2); }
+.floating-tab[data-climate] .forecast-day .glyph { color: var(--skin-ink-1); }
+.floating-tab[data-climate] .weather-forecast {
+  background: var(--skin-card);
+  border-radius: 14px;
+  padding: 14px 6px;
+  margin-top: 14px;
+}
+
+/* --- COMMUNITY — postcard cards -------------------------------- */
+.floating-tab[data-climate] .post {
+  background: var(--skin-card);
+  border: 1px solid var(--skin-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: background 0.2s, transform 0.3s;
+}
+.floating-tab[data-climate] .post:hover {
+  background: var(--skin-card-strong);
+  transform: translateX(2px);
+}
+.floating-tab[data-climate] .avatar {
+  background: var(--skin-accent-soft);
+  color: var(--skin-accent);
+}
+.floating-tab[data-climate] .post-meta { color: var(--skin-ink-2); }
+.floating-tab[data-climate] .post-meta .author { color: var(--skin-ink-0); }
+.floating-tab[data-climate] .post-text { color: var(--skin-ink-1); }
+.floating-tab[data-climate] .post-react { color: var(--skin-ink-2); opacity: 0.85; }
+
+/* --- LANDMARK STRIP (over hero) — light pill thumbs ------------ */
+.floating-tab[data-climate] .lm-thumb {
+  background: var(--skin-card-strong);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+.floating-tab[data-climate] .lm-thumb:hover { border-color: var(--skin-accent); }
+.floating-tab[data-climate] .lm-thumb.active {
+  border-color: var(--skin-accent);
+  box-shadow: 0 0 0 2px var(--skin-accent), 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+.floating-tab[data-climate] .lm-thumb-caption {
+  color: var(--skin-ink-1);
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.5);
+}
+.floating-tab[data-climate] .lm-thumb-caption .l-name { color: var(--skin-ink-0); }
+
+/* --- SCROLLBAR -------------------------------------------------- */
+.floating-tab[data-climate] .tab-content::-webkit-scrollbar-thumb {
+  background: var(--skin-line-strong);
+}
+
+/* --- GENTLE BREATHING for hero photo + cards -------------------- */
+.floating-tab[data-climate] .tab-hero-col .hero-img {
+  /* slower, softer ken-burns under the new light wash */
+  animation: ken-burns 34s ease-in-out infinite alternate;
+}
