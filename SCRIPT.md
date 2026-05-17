@@ -5,23 +5,31 @@ Bracketed lines are stage cues, not things to say.
 
 ---
 
-## Slide 1 — Title  *(~20s)*
+## Slide 1 — Title  *(~25s)*
 
 [Mini globe is spinning on the right.]
 
-Hi, we're TerraPulse — a travel atlas built for this design-a-thon.
+Hi, we're TerraPulse.
 
-The idea is simple. Most travel sites today feel like spreadsheets with photos. We wanted to build something that feels more like a magazine. So we made a globe you walk into.
+It's a travel atlas — but specifically for the moment *before* you book. When you're sitting on a Sunday, daydreaming about where to go next, and you don't quite know yet.
+
+Most travel tools today help you once you've already chosen. We wanted to build something for the part before that. So we made a globe you can walk into.
 
 ---
 
-## Slide 2 — The Problem  *(~25s)*
+## Slide 2 — Where it fits  *(~30s)*
 
-A quick look at what travel sites do today.
+Quick look at what people use today when they're thinking about travel.
 
-They give you long lists. Every city looks pretty much the same. And there's way more text than anyone reads.
+Google Maps tells you *how to get there* — once you've decided.
 
-We wanted to fix all three. So we started over.
+Instagram shows you *where someone else just was* — but it's a feed, not a map.
+
+Booking sites tell you *how much and when* — once you've already chosen the city.
+
+None of them help with the first question: *where should I even go?*
+
+That's the gap we're filling.
 
 ---
 
