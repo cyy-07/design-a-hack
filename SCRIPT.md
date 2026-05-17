@@ -1,6 +1,6 @@
 # TerraPulse — 5-Minute Speaker Script
 
-Roughly 25 seconds per slide. Speak slow, breathe between slides.
+13 slides at roughly 23 seconds each. Speak slow, breathe between slides.
 Bracketed lines are stage cues, not things to say.
 
 ---
@@ -134,7 +134,19 @@ So instead of being just a globe component, it became a spatial interaction laye
 
 ---
 
-## Slide 11 — Try It Live  *(~20s)*
+## Slide 11 — Image Pipeline  *(~25s)*
+
+One more thing about the AI side, since this is important.
+
+For images, we don't generate anything. AI helps us *retrieve* real photos — that's the whole pipeline.
+
+We tag each city with semantic labels — landmarks, food, atmosphere. We search external image sources. We filter and rank by relevance. And we pick the most representative photo for each place.
+
+So every image on the atlas is a real photo of a real place. Semantically matched. Never hallucinated.
+
+---
+
+## Slide 12 — Try It Live  *(~20s)*
 
 And this is the actual product, running live, embedded right inside the slide.
 
@@ -144,7 +156,7 @@ If you want to play with it after, the link is at the top of our README.
 
 ---
 
-## Slide 12 — Closing  *(~15s)*
+## Slide 13 — Closing  *(~15s)*
 
 That's TerraPulse.
 
@@ -158,7 +170,7 @@ Thank you.
 
 ## Pacing notes
 
-- Total reading time ≈ **4:50** at a calm pace (~125 wpm).
-- The two longer slides are **Four Layers** and **Under the Hood** — those carry the design story and the open-source acknowledgment.
+- Total reading time ≈ **5:10** at a calm pace (~125 wpm).
+- The longer slides are **Four Layers**, **Under the Hood**, and **Image Pipeline** — they carry the design story, the open-source acknowledgment, and the AI-retrieval framing.
 - If you run short on time, the easiest slides to cut are **Carousel** (visual already speaks for itself) and **Rhythm** (which restates Four Layers).
 - If you run long, drop a beat in **Climates** — the visual on screen does most of the work.

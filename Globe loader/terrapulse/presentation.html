@@ -464,6 +464,68 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 .stack-bul li{font-size:15px;color:var(--ink-1);line-height:1.5;padding-left:12px;position:relative;}
 .stack-bul li::before{content:'';position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:currentColor;color:var(--ink-3);}
 
+/* ────── IMAGE PIPELINE (Tag → Search → Rank → Pick) ───── */
+#images{flex-direction:column;align-items:flex-start;}
+#images .inner{width:100%;max-width:1320px;}
+#images h2.display{font-size:clamp(34px,4.2vw,60px);margin-bottom:14px;max-width:880px;}
+#images .sub-eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:var(--ink-2);margin-bottom:42px;}
+.img-pipeline{
+  display:grid;
+  grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+  gap:14px;align-items:stretch;width:100%;
+}
+.ip-step{
+  background:rgba(255,253,247,0.62);
+  border:1px solid var(--line-strong);border-radius:22px;
+  padding:24px 22px 26px;backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;gap:8px;
+  position:relative;
+  box-shadow:0 4px 20px rgba(60,45,30,0.05),0 18px 50px -20px rgba(60,45,30,0.08);
+  opacity:0;transform:translateY(28px);transition:all .9s cubic-bezier(.22,1,.36,1);
+}
+#images.active .ip-step:nth-of-type(1){opacity:1;transform:none;transition-delay:.25s;}
+#images.active .ip-step:nth-of-type(2){opacity:1;transform:none;transition-delay:.4s;}
+#images.active .ip-step:nth-of-type(3){opacity:1;transform:none;transition-delay:.55s;}
+#images.active .ip-step:nth-of-type(4){opacity:1;transform:none;transition-delay:.7s;}
+.ip-num{
+  font-family:var(--f-display);font-style:italic;
+  font-variation-settings:'opsz' 144,'SOFT' 75;
+  font-size:38px;line-height:0.85;color:var(--accent);opacity:0.55;
+}
+.ip-step:nth-of-type(2) .ip-num{color:var(--sea);}
+.ip-step:nth-of-type(3) .ip-num{color:var(--leaf);}
+.ip-step:nth-of-type(4) .ip-num{color:var(--lilac);}
+.ip-name{
+  font-family:var(--f-display);font-weight:400;
+  font-variation-settings:'opsz' 72,'SOFT' 50;
+  font-size:26px;color:var(--ink-0);letter-spacing:-0.01em;line-height:1.1;
+}
+.ip-desc{
+  font-size:14px;color:var(--ink-1);line-height:1.55;
+  margin-top:auto;padding-top:8px;
+}
+.ip-arrow{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-mono);font-size:22px;color:var(--ink-3);
+  opacity:0;transition:opacity .6s cubic-bezier(.22,1,.36,1);
+}
+#images.active .ip-arrow:nth-of-type(1){opacity:1;transition-delay:.5s;}
+#images.active .ip-arrow:nth-of-type(2){opacity:1;transition-delay:.65s;}
+#images.active .ip-arrow:nth-of-type(3){opacity:1;transition-delay:.8s;}
+.img-callout{
+  display:flex;align-items:center;gap:14px;
+  margin-top:42px;padding:20px 28px;
+  background:rgba(255,253,247,0.72);
+  border:1px solid var(--line-strong);border-radius:18px;
+  font-family:var(--f-display);font-style:italic;
+  font-variation-settings:'opsz' 36,'SOFT' 70;
+  font-size:18px;color:var(--ink-0);
+  width:fit-content;
+  opacity:0;transform:translateY(20px);transition:all .9s 1s cubic-bezier(.22,1,.36,1);
+}
+#images.active .img-callout{opacity:1;transform:none;}
+.ic-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);flex-shrink:0;}
+
 /* ────── LIVE EMBED (bigger + city pickers) ───── */
 #liveSlide{flex-direction:column;align-items:flex-start;}
 #liveSlide .inner{width:100%;max-width:1400px;}
@@ -1026,10 +1088,48 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
   </div>
 </div>
 
-<!-- ─── 11. LIVE EMBED ─── -->
+<!-- ─── 11. IMAGE PIPELINE — AI retrieval, not generation ─── -->
+<div class="slide" id="images">
+  <div class="inner">
+    <div class="slide-label">09 — Image pipeline</div>
+    <h2 class="display">AI for <span class="italic-accent">retrieval, not generation.</span></h2>
+    <div class="sub-eyebrow">Every photo is a real place, indexed and matched.</div>
+    <div class="img-pipeline">
+      <div class="ip-step">
+        <div class="ip-num">01</div>
+        <div class="ip-name">Tag</div>
+        <div class="ip-desc">City name + semantic tags<br>(landmarks · food · atmosphere)</div>
+      </div>
+      <div class="ip-arrow">&#x2192;</div>
+      <div class="ip-step">
+        <div class="ip-num">02</div>
+        <div class="ip-name">Search</div>
+        <div class="ip-desc">Query external sources<br>(APIs + image search)</div>
+      </div>
+      <div class="ip-arrow">&#x2192;</div>
+      <div class="ip-step">
+        <div class="ip-num">03</div>
+        <div class="ip-name">Rank</div>
+        <div class="ip-desc">Filter + relevance ranking<br>(drop off-topic, low-quality)</div>
+      </div>
+      <div class="ip-arrow">&#x2192;</div>
+      <div class="ip-step">
+        <div class="ip-num">04</div>
+        <div class="ip-name">Pick</div>
+        <div class="ip-desc">Most representative visual<br>per city + per landmark</div>
+      </div>
+    </div>
+    <div class="img-callout">
+      <span class="ic-dot"></span>
+      Every image on the atlas is a real-world photo — semantically matched, never hallucinated.
+    </div>
+  </div>
+</div>
+
+<!-- ─── 12. LIVE EMBED ─── -->
 <div class="slide" id="liveSlide">
   <div class="inner">
-    <div class="slide-label">09 — Try it</div>
+    <div class="slide-label">10 — Try it</div>
     <h2 class="display">Hover the planet. <span class="italic-accent">Right here.</span></h2>
     <div class="sub-eyebrow">Embedded. Real product. Same code.</div>
     <div class="live-frame">
@@ -1047,7 +1147,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
   <div class="closing-ring"></div>
   <div class="closing-ring two"></div>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;">
-    <div class="label-eyebrow">10 — TerraPulse</div>
+    <div class="label-eyebrow">11 — TerraPulse</div>
     <h1 class="display">A living atlas</h1>
     <div class="tagline">Hover the planet. Watch cities rise.</div>
     <div class="stats-row">
