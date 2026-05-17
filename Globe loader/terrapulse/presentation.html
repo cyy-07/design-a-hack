@@ -157,6 +157,15 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 .appr-mark{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
 .appr-mark.x{background:rgba(60,45,30,0.06);color:var(--ink-2);}
 .appr-mark.v{background:rgba(201,134,85,0.18);color:var(--accent);}
+
+/* 3 principle cards */
+.appr-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;width:100%;margin-top:46px;}
+.appr-card{background:rgba(255,253,247,0.62);border:1px solid var(--line-strong);border-radius:22px;padding:36px 30px;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(60,45,30,0.05),0 18px 50px -20px rgba(60,45,30,0.08);position:relative;}
+.appr-card .appr-num{font-family:var(--f-display);font-style:italic;font-variation-settings:'opsz' 144,'SOFT' 75;font-size:48px;line-height:0.85;color:var(--accent);opacity:0.5;margin-bottom:18px;}
+.appr-card:nth-child(2) .appr-num{color:var(--sea);}
+.appr-card:nth-child(3) .appr-num{color:var(--leaf);}
+.appr-card .appr-title{font-family:var(--f-display);font-weight:400;font-variation-settings:'opsz' 72,'SOFT' 50;font-size:30px;color:var(--ink-0);line-height:1.1;margin-bottom:12px;letter-spacing:-0.012em;}
+.appr-card .appr-sub{font-size:16px;color:var(--ink-1);line-height:1.6;}
 #approach.active .appr-col.not .appr-item:nth-child(2){opacity:1;transform:none;transition-delay:.32s;}
 #approach.active .appr-col.not .appr-item:nth-child(3){opacity:1;transform:none;transition-delay:.46s;}
 #approach.active .appr-col.not .appr-item:nth-child(4){opacity:1;transform:none;transition-delay:.6s;}
@@ -491,7 +500,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 <div class="slide" id="problem">
   <div class="inner">
     <div class="slide-label">01 — The problem</div>
-    <h2 class="display reveal">Travel apps treat cities like<br><span class="italic-accent">database rows.</span></h2>
+    <h2 class="display reveal">Most travel sites are<br><span class="italic-accent">spreadsheets with photos.</span></h2>
     <div class="pain-cards">
       <div class="pain-card">
         <div class="pain-illus">
@@ -544,24 +553,26 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
   </div>
 </div>
 
-<!-- ─── 3. APPROACH (not / is) ─── -->
+<!-- ─── 3. APPROACH — three principles ─── -->
 <div class="slide" id="approach">
   <div class="inner">
     <div class="slide-label">02 — The approach</div>
-    <h2 class="display reveal d1">Not another app.<br><span class="italic-accent">A living atlas.</span></h2>
-    <div class="approach-grid">
-      <div class="appr-col not reveal left d2">
-        <div class="appr-label not">&times; &nbsp; not</div>
-        <div class="appr-item"><span class="appr-mark x">&times;</span> a 5-tab list view</div>
-        <div class="appr-item"><span class="appr-mark x">&times;</span> a tech dashboard</div>
-        <div class="appr-item"><span class="appr-mark x">&times;</span> a heavy modal</div>
+    <h2 class="display reveal d1">An atlas that <span class="italic-accent">breathes.</span></h2>
+    <div class="appr-cards">
+      <div class="appr-card reveal d2">
+        <div class="appr-num">01</div>
+        <div class="appr-title">Spatial entry</div>
+        <div class="appr-sub">Cities rise out of the globe. Tabs unfold like pages.</div>
       </div>
-      <div class="appr-divider reveal d3"><div class="appr-circle">but</div></div>
-      <div class="appr-col is reveal right d2">
-        <div class="appr-label is">&radic; &nbsp; is</div>
-        <div class="appr-item"><span class="appr-mark v">&radic;</span> a spatial entry</div>
-        <div class="appr-item"><span class="appr-mark v">&radic;</span> a climate-adaptive page</div>
-        <div class="appr-item"><span class="appr-mark v">&radic;</span> a postcard you open</div>
+      <div class="appr-card reveal d3">
+        <div class="appr-num">02</div>
+        <div class="appr-title">A palette per city</div>
+        <div class="appr-sub">Five climates. Marrakech reads warm. Cusco reads cool.</div>
+      </div>
+      <div class="appr-card reveal d4">
+        <div class="appr-num">03</div>
+        <div class="appr-title">Image leads</div>
+        <div class="appr-sub">Photos do the talking. Text waits behind the click.</div>
       </div>
     </div>
   </div>
@@ -572,10 +583,10 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
   <div class="ornament-line"></div>
   <div class="quote-mark">&ldquo;</div>
   <div class="manifesto-body">
-    <span>An entry into a place</span>
-    <span>is not a click.</span>
-    <span>It is a&nbsp;</span>
-    <span class="em">drift.</span>
+    <span>Open a city</span>
+    <span>the way you'd</span>
+    <span>open a&nbsp;</span>
+    <span class="em">window.</span>
   </div>
   <div class="manifesto-attrib">TerraPulse · Design principle №&thinsp;01</div>
 </div>
@@ -732,7 +743,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 <div class="slide" id="carousel">
   <div class="inner">
     <div class="slide-label">05 — Atmosphere in action</div>
-    <h2 class="display">Same system, <span class="italic-accent">five moods.</span></h2>
+    <h2 class="display">Five climates, <span class="italic-accent">on autoplay.</span></h2>
     <div class="sub-eyebrow">A 4-second drift through one city per climate.</div>
     <div class="cycle-stage">
       <div class="cycle-photo-wrap">
@@ -767,7 +778,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 <div class="slide" id="rhythm">
   <div class="inner">
     <div class="slide-label">06 — Interaction rhythm</div>
-    <h2 class="display">No clicks. <span class="italic-accent">Just drifts.</span></h2>
+    <h2 class="display">Read it like <span class="italic-accent">a magazine.</span></h2>
     <div class="rhythm">
       <div class="rhythm-step">
         <div class="rhythm-stage"><div class="stage-globe"><div class="pin"></div></div></div>
@@ -831,12 +842,12 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 <div class="slide" id="feels">
   <div class="inner">
     <div class="slide-label">07 — What makes it land</div>
-    <h2 class="display">Built around <span class="italic-accent">three feelings.</span></h2>
+    <h2 class="display">How it should <span class="italic-accent">feel.</span></h2>
     <div class="sub-eyebrow">Spatial · atmospheric · editorial</div>
     <div class="feel-grid">
       <div class="feel-card">
         <div class="feel-eyebrow">Spatial</div>
-        <div class="feel-title">"I'm flying in, not opening a panel."</div>
+        <div class="feel-title">"It feels like walking into a place."</div>
         <ul class="feel-bul">
           <li>3D camera lock-on</li>
           <li>Globe recedes, pillar grows</li>
@@ -854,7 +865,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
       </div>
       <div class="feel-card">
         <div class="feel-eyebrow">Editorial</div>
-        <div class="feel-title">"A magazine, not an app."</div>
+        <div class="feel-title">"It reads like a magazine."</div>
         <ul class="feel-bul">
           <li>Variable serif type</li>
           <li>Paper grain, dust orbs</li>
@@ -869,7 +880,7 @@ kbd{background:rgba(255,253,247,0.7);border:1px solid var(--line-strong);border-
 <div class="slide" id="stack">
   <div class="inner">
     <div class="slide-label">08 — Under the hood</div>
-    <h2 class="display">Hand-built. <span class="italic-accent">No frameworks.</span></h2>
+    <h2 class="display">Just HTML, CSS, <span class="italic-accent">and three.js.</span></h2>
     <div class="stack-diagram">
       <div class="stack-box">
         <div class="stack-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M3 12h18"/></svg></div>
