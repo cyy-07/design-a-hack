@@ -1,10 +1,8 @@
 # TerraPulse
 
+### ▶ [Open the presentation](https://design-a-hack-git-main-cyy-07s-projects.vercel.app/Globe%20loader/terrapulse/presentation.html) &nbsp;·&nbsp; [Open the live atlas](https://design-a-hack-git-main-cyy-07s-projects.vercel.app/Globe%20loader/terrapulse/TerraPulse)
+
 TerraPulse is a DesignVerse 2026 project about travel, community, and globe exploration. It is not a conventional travel site or a flat map page. The core idea is to make discovery feel spatial: the visitor enters through a living 3D globe, opens a city like a glowing magazine cover, then flips into lightweight content sections shaped around places, food, weather, trends, and community voices.
-
-## Live Site
-
-[Open TerraPulse on Vercel](https://design-a-hack-git-main-cyy-07s-projects.vercel.app/Globe%20loader/terrapulse/TerraPulse)
 
 ## Experience
 
