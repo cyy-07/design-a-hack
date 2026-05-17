@@ -1,38 +1,40 @@
-# TerraPulse / DesignVerse 2026
+# TerraPulse
 
-TerraPulse is a DesignVerse 2026 travel / community / globe exploration project.
+TerraPulse is a DesignVerse 2026 project about travel, community, and globe exploration. It is not a conventional travel site or a flat map page. The core idea is to make discovery feel spatial: the visitor enters through a living 3D globe, opens a city like a glowing magazine cover, then flips into lightweight content sections shaped around places, food, weather, trends, and community voices.
 
-The experience is a layered travel atlas:
+## Live Site
 
-- Layer 1: a 3D globe as the spatial entry point
-- Layer 2: a soft city cover stage with climate-aware atmosphere
-- Layer 3: large tab-driven content sections
-- Layer 4: landmark postcard lightboxes
+[Open TerraPulse on Vercel](https://design-a-hack-git-main-cyy-07s-projects.vercel.app/Globe%20loader/terrapulse/TerraPulse)
 
-## Open Locally
+## Experience
 
-The main page is:
+**Layer 1: Globe Entry**
 
-```text
-Globe loader/terrapulse/TerraPulse.html
-```
+The globe is the main entrance. Cities live on the surface as quiet markers; hovering a city raises it into a light pillar with a circular photo node. The interface avoids showing every city label at once so the planet keeps its atmosphere instead of becoming a cluttered map.
 
-For the most reliable local preview, run a static server from `Globe loader/terrapulse`:
+**Layer 2: City Cover Stage**
 
-```powershell
-cd "Globe loader/terrapulse"
-python -m http.server 8765
-```
+Clicking a city opens a soft travel-magazine cover. Each city uses its own image and climate-aware palette, with a large city title, country, short description, and five oversized tab cards along the bottom.
 
-Then open:
+**Layer 3: Section Views**
 
-```text
-http://localhost:8765/TerraPulse.html
-```
+The five tabs open into focused content views:
+
+- Landmarks
+- Trending
+- Food
+- Weather
+- Community
+
+The sections keep text light and visual rhythm high, using larger typography, image cards, soft glass surfaces, and page-flip style transitions.
+
+**Layer 4: Landmark Postcards**
+
+Landmark images open into postcard-style detail views. The image remains the main subject, with just enough supporting text to give context.
 
 ## API Config
 
-Optional Google Gemini and ElevenLabs keys live in:
+Optional Google Gemini and ElevenLabs settings are in:
 
 ```text
 Globe loader/terrapulse/assets/api-config.js
@@ -49,24 +51,39 @@ window.TERRA_API_CONFIG = {
 };
 ```
 
-For a public production deployment, use a backend proxy instead of exposing real API keys in frontend JavaScript.
+For a public production deployment, do not expose real private API keys in frontend JavaScript. Use a backend proxy for Gemini and ElevenLabs if the project goes beyond demo mode.
+
+## Local Preview
+
+The main file is:
+
+```text
+Globe loader/terrapulse/TerraPulse.html
+```
+
+Run a static server from the TerraPulse folder:
+
+```powershell
+cd "Globe loader/terrapulse"
+python -m http.server 8765
+```
+
+Then open:
+
+```text
+http://localhost:8765/TerraPulse.html
+```
 
 ## Vercel Deployment
 
-1. Push this repository to GitHub.
-2. Go to Vercel and choose **Add New Project**.
-3. Import `cyy-07/design-a-hack`.
-4. Use these settings:
-   - Framework Preset: **Other**
-   - Build Command: leave empty
-   - Output Directory: leave empty
-   - Install Command: leave empty
-5. Deploy.
+This is a static frontend project. Vercel can serve it without a build step.
 
-The root route `/` redirects to:
+Recommended Vercel settings:
 
-```text
-/Globe%20loader/terrapulse/TerraPulse.html
-```
+- Framework Preset: `Other`
+- Build Command: leave empty
+- Output Directory: leave empty
+- Install Command: leave empty
 
-That redirect is configured in `vercel.json`.
+The root route is configured in `vercel.json` to redirect into the TerraPulse page.
+
